@@ -1,15 +1,17 @@
 import express from "express";
-import UsersController from "./controllers/UsersController";
+import AlunoController from "./controllers/AlunoController";
 
 const routes = express.Router();
 
-const usersInstance = new UsersController();
+const alunoController = new AlunoController();
 
 const methodNotAllowed = (req, res) => res.sendStatus(405);
 
-routes.get("/alunos", usersInstance.index);
-routes.get("/alunos/:id", usersInstance.show);
-routes.post("/alunos", usersInstance.save);
+routes.get("/alunos", alunoController.index);
+routes.post("/alunos", alunoController.save);
+routes.get("/alunos/:id", alunoController.show);
+routes.put("/alunos/:id", alunoController.update);
+routes.delete("/alunos/:id", alunoController.delete);
 
 routes.post("/alunos/:id", methodNotAllowed);
 routes.put("/alunos", methodNotAllowed);
