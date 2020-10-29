@@ -11,6 +11,8 @@ app.use((req, res, next) => {
 });
 app.use(routes);
 
-app.listen(3333, () => {
-  console.log("Server running on port " + 3333);
+const port = 8080;
+
+app.listen(port, () => {
+  console.log("Server running on port " + port);
 });

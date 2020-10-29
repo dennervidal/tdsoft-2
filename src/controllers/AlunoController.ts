@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import AlunoService from "../services/AlunoService";
+import { validateRga } from "../utils/regex";
 
 const alunoService = new AlunoService();
 
@@ -40,10 +41,13 @@ class AlunoController {
   async save(request: Request, response: Response) {
     const { rga, nome, curso = null } = request.body;
 
-    // TODO: Necessário testar o rga para expressão regular dddd.dddd.ddd-d /(\d{4}[.]\d{4}[.]\d{3}[-]\d)/g
-
-    if (!rga || !nome) {
-      return response.sendStatus(400);
+    if (!rga || !nome || !validateRga(rga)) {
+      return response
+        .status(400)
+        .json({
+          message:
+            "Verifique se o nome e rga estão preenchidos e se o rga segue o formato 1111.1111.111-1",
+        });
     }
 
     try {
@@ -66,8 +70,6 @@ class AlunoController {
       const aluno = await alunoService.findAlunoById(id);
       await alunoService.delete(id);
 
-      console.log(aluno);
-
       return response.status(200).json(aluno);
     } catch (e) {
       console.error(e);
@@ -84,16 +86,24 @@ class AlunoController {
       situacao = null,
     } = request.body;
 
+    if (rga && !validateRga(rga)) {
+      return response
+        .status(400)
+        .json({ message: "Rga deve ser no formato 1111.1111.111-1" });
+    }
+
     try {
       await alunoService.update(id, rga, nome, curso, situacao);
 
       const aluno = await alunoService.findAlunoById(id);
 
-      console.log(aluno);
-
       return response.status(200).json(aluno);
     } catch (e) {
       console.error(e);
+      if (e.errno === 19)
+        return response
+          .status(400)
+          .json({ message: "Situacao deve ser ['ativo', 'inativo']" });
       return response.sendStatus(404);
     }
   }
